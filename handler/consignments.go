@@ -8,7 +8,7 @@ import (
 )
 
 type ShippingService struct {
-	repo repository
+	Repo repository
 }
 
 type repository interface {
@@ -34,7 +34,7 @@ func (repo *Repository) GetAll() []*pb.Consignment {
 }
 
 func (s *ShippingService) CreateConsignment(ctx context.Context, req *pb.Consignment, res *pb.Response) error {
-	consignment, err := s.repo.Create(req)
+	consignment, err := s.Repo.Create(req)
 	if err != nil {
 		return err
 	}
@@ -44,7 +44,7 @@ func (s *ShippingService) CreateConsignment(ctx context.Context, req *pb.Consign
 }
 
 func (s *ShippingService) GetConsignments(ctx context.Context, req *pb.GetRequest, res *pb.Response) error {
-	consignments := s.repo.GetAll()
+	consignments := s.Repo.GetAll()
 	res = &pb.Response{Consignments: consignments}
 	return nil
 }
