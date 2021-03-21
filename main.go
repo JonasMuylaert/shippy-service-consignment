@@ -2,13 +2,11 @@ package main
 
 import (
 	"context"
-	"log"
-	"net"
 	"sync"
 
 	pb "github.com/JonasMuylaert/shippy-service-consignment/proto/consignment"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/reflection"
+	"github.com/micro/micro/v3/service"
+	"github.com/micro/micro/v3/service/logger"
 )
 
 const (
@@ -16,7 +14,6 @@ const (
 )
 
 type shippingServiceServer struct {
-	pb.UnimplementedShippingServiceServer
 	repo repository
 }
 
@@ -64,24 +61,20 @@ func newServer() *shippingServiceServer {
 }
 
 func main() {
+	//register service with micro
+	srv := service.New(
+		service.Name("shippy.service.consignment"),
+	)
 
-	// Set-up our gRPC server.
-	lis, err := net.Listen("tcp", PORT)
-	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
+	srv.Init()
+
+	//register handler
+	if err := srv.Handle(newServer()); err != nil {
+		logger.Fatalf("failed creating a logger: %v", err)
 	}
-	grpcServer := grpc.NewServer()
 
-	// Register our service with the gRPC server, this will tie our
-	// implementation into the auto-generated interface code for our
-	// protobuf definition.
-	pb.RegisterShippingServiceServer(grpcServer, newServer())
-
-	// Register reflection service on gRPC server.
-	reflection.Register(grpcServer)
-
-	log.Println("Running on port:", PORT)
-	if err := grpcServer.Serve(lis); err != nil {
-		log.Fatalf("failed to serve: %v", err)
+	//run server
+	if err := srv.Run(); err != nil {
+		logger.Fatalf("failed starting server: %v", err)
 	}
 }
