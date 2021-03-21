@@ -18,7 +18,7 @@ import (
 func main() {
 	//register service with micro
 	srv := service.New(
-		service.Name("shippy.service.consignment"),
+		service.Name("consignment"),
 	)
 
 	srv.Init()
